@@ -35,6 +35,30 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
        }catch(IOException e) {
     	   e.printStackTrace();
        }
+
+
+	   JPanel gameArea = new JPanel();
+	   gameArea.setOpaque(false);
+	   gameArea.setLayout(new BoxLayout(gameArea, BoxLayout.PAGE_AXIS));
+	   gameArea.setSize(new Dimension(900,550));
+	   gameArea.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.RED));
+	   this.add(gameArea);
+
+	   JPanel deckArea = new JPanel();
+	   deckArea.setOpaque(false);
+	   deckArea.setLayout(new BoxLayout(deckArea, BoxLayout.PAGE_AXIS));
+	   deckArea.setSize(new Dimension(200,200));
+	   deckArea.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.BLUE));
+	   this.add(deckArea);
+
+	   JPanel playerArea = new JPanel();
+	   playerArea.setOpaque(false);
+	   playerArea.setLayout(new BoxLayout(playerArea, BoxLayout.PAGE_AXIS));
+	   playerArea.setSize(new Dimension(200,200));
+	   playerArea.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.YELLOW));
+	   this.add(playerArea);
+
+
        
        /*******
         * This is just a test to make sure images are being read correctly on your machine. Please replace
