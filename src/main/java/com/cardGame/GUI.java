@@ -43,8 +43,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     // Game buttons
     private JButton hitButton;
     private JButton standButton;
-    private JButton newGameButton;
-    
+
     private JLabel resultLabel;
 
     private JButton bet25Button;
@@ -54,8 +53,11 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
 
     private JLabel moneyLabel;
     private JLabel betLabel;
-    
-    private boolean canBet ;
+
+    private boolean canBet = true;
+
+    private JLabel dealerValueLabel;
+    private JLabel playerValueLabel;
 
     public GUI(Solitaire game) {
         this.game = game;
@@ -73,9 +75,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        canBet = true;
-        
+
         gameArea = new JPanel(new GridLayout(3, 1, 10, 10));
         gameArea.setOpaque(false);
         gameArea.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.RED));
@@ -118,56 +118,36 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
 
         hitButton = new JButton("Hit");
         standButton = new JButton("Stand");
-        newGameButton = new JButton("New Game");
 
         buttonPanel.add(hitButton);
         buttonPanel.add(standButton);
-        buttonPanel.add(newGameButton);
-        
+
         hitButton.addActionListener(e -> {
-        	if (canBet == true) {
-        	game.hit();
-        	canBet = false;
-        	if (game.calculateHandValue(game.playerHand) > 21) {
-                game.payWinner();
-                resultLabel.setText(game.checkGameStatus());
-                moneyLabel.setText("Chips: " + game.playerMoney);
+            if (canBet == false && game.roundOver == false) {
+                game.hit();
+
+                if (game.roundOver == true) {
+                    finishRound();
+                }
+
+                updateDisplay();
             }
-
-        	
-        	updateDisplay();
-        	System.out.println("Hit button clicked");
-        	}
-        	
         });
+
         standButton.addActionListener(e -> {
-        	game.stand();
-        	
-        	game.payWinner();
-        	
-        	resultLabel.setText(game.checkGameStatus());
-            moneyLabel.setText("Chips: " + game.playerMoney);
+            if (canBet == false && game.roundOver == false) {
+                game.stand();
 
-        	updateDisplay();
-        	System.out.println("Stand button clicked");
-        	
-        	canBet = false;
-        });
-        newGameButton.addActionListener(e -> {
-        	game.startNewRound();
-        	
-        	betLabel.setText("Current Bet: 0");
-            resultLabel.setText("Place your bet!");
+                if (game.roundOver == true) {
+                    finishRound();
+                }
 
-            updateDisplay();
-        	System.out.println("New game button clicked");
-        	
-        	canBet = true;
+                updateDisplay();
+            }
         });
 
         this.add(buttonPanel, BorderLayout.SOUTH);
-        
-        
+
         bet25Button = new JButton("Bet 25");
         bet50Button = new JButton("Bet 50");
         bet75Button = new JButton("Bet 75");
@@ -176,7 +156,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         moneyLabel = new JLabel("Chips: 500");
         betLabel = new JLabel("Current Bet: 0");
         resultLabel = new JLabel("Place your bet!");
-        
+
         buttonPanel.add(moneyLabel);
         buttonPanel.add(betLabel);
 
@@ -188,32 +168,26 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         buttonPanel.add(resultLabel);
 
         bet25Button.addActionListener(e -> {
-            if (game.placeBet(25) && canBet == true) {
-                moneyLabel.setText("Chips: " + game.playerMoney);
-                betLabel.setText("Current Bet: " + game.currentBet);
-            }
+            placeBet(25);
         });
-        
+
         bet50Button.addActionListener(e -> {
-            if (game.placeBet(50) && canBet == true) {
-                moneyLabel.setText("Chips: " + game.playerMoney);
-                betLabel.setText("Current Bet: " + game.currentBet);
-            }
+            placeBet(50);
         });
-        
+
         bet75Button.addActionListener(e -> {
-            if (game.placeBet(75) && canBet == true) {
-                moneyLabel.setText("Chips: " + game.playerMoney);
-                betLabel.setText("Current Bet: " + game.currentBet);
-            }
+            placeBet(75);
         });
-        
+
         bet100Button.addActionListener(e -> {
-            if (game.placeBet(100) && canBet == true) {
-                moneyLabel.setText("Chips: " + game.playerMoney);
-                betLabel.setText("Current Bet: " + game.currentBet);
-            }
+            placeBet(100);
         });
+
+        dealerValueLabel = new JLabel("Dealer Value: --");
+        playerValueLabel = new JLabel("Your Value: --");
+
+        dealerValueLabel.setForeground(Color.WHITE);
+        playerValueLabel.setForeground(Color.WHITE);
 
         /*******
          * This is just a test to make sure images are being read correctly on your
@@ -227,39 +201,39 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         // this.add(card);
 
         // Testing if the method below works for step 2
-//        Stack<Card> deckCards = new Stack<Card>();
-//
-//        Card deckCard1 = new Card(2, Card.Suit.Diamonds);
-//        deckCard1.hide();
-//        deckCards.push(deckCard1);
-//
-//        Card deckCard2 = new Card(5, Card.Suit.Hearts);
-//        deckCard2.hide();
-//        deckCards.push(deckCard2);
-//
-//        Card deckCard3 = new Card(13, Card.Suit.Spades);
-//        deckCard3.hide();
-//        deckCards.push(deckCard3);
-//
-//        Stack<Card> discardedCards = new Stack<Card>();
-//        discardedCards.push(new Card(4, Card.Suit.Hearts));
-//        discardedCards.push(new Card(8, Card.Suit.Clubs));
-//
-//        Stack<Card> dealerCards = new Stack<Card>();
-//        dealerCards.push(new Card(13, Card.Suit.Spades));
-//
-//        Card dealerHiddenCard = new Card(7, Card.Suit.Hearts);
-//        dealerHiddenCard.hide();
-//        dealerCards.push(dealerHiddenCard);
-//
-//        Stack<Card> playerCards = new Stack<Card>();
-//        playerCards.push(new Card(1, Card.Suit.Diamonds));
-//        playerCards.push(new Card(9, Card.Suit.Clubs));
-//
-//        deckArea.add(drawPile(deckCards));
-//        discardArea.add(drawPile(discardedCards));
-//        dealerArea.add(drawPile(dealerCards));
-//        playerArea.add(drawPile(playerCards));
+        // Stack<Card> deckCards = new Stack<Card>();
+        //
+        // Card deckCard1 = new Card(2, Card.Suit.Diamonds);
+        // deckCard1.hide();
+        // deckCards.push(deckCard1);
+        //
+        // Card deckCard2 = new Card(5, Card.Suit.Hearts);
+        // deckCard2.hide();
+        // deckCards.push(deckCard2);
+        //
+        // Card deckCard3 = new Card(13, Card.Suit.Spades);
+        // deckCard3.hide();
+        // deckCards.push(deckCard3);
+        //
+        // Stack<Card> discardedCards = new Stack<Card>();
+        // discardedCards.push(new Card(4, Card.Suit.Hearts));
+        // discardedCards.push(new Card(8, Card.Suit.Clubs));
+        //
+        // Stack<Card> dealerCards = new Stack<Card>();
+        // dealerCards.push(new Card(13, Card.Suit.Spades));
+        //
+        // Card dealerHiddenCard = new Card(7, Card.Suit.Hearts);
+        // dealerHiddenCard.hide();
+        // dealerCards.push(dealerHiddenCard);
+        //
+        // Stack<Card> playerCards = new Stack<Card>();
+        // playerCards.push(new Card(1, Card.Suit.Diamonds));
+        // playerCards.push(new Card(9, Card.Suit.Clubs));
+        //
+        // deckArea.add(drawPile(deckCards));
+        // discardArea.add(drawPile(discardedCards));
+        // dealerArea.add(drawPile(dealerCards));
+        // playerArea.add(drawPile(playerCards));
 
         this.setVisible(true);
     }
@@ -267,6 +241,9 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     // Precondition: stackIn is not null and stack had valid Card objects
     // Postcondition: a JLayeredPane is returned containing the cards from the stack
     public JLayeredPane drawPile(Stack<Card> stackIn) {
+        if (stackIn == null) {
+            stackIn = new Stack<Card>();
+        }
         Object cards[] = stackIn.toArray();
 
         int cardWidth = 70;
@@ -297,16 +274,77 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
 
         return pile;
     }
-    
+
+    // Precondition: The game areas and value labels have been created.
+    // Postcondition: The dealer's and player's cards and hand values are displayed.
     public void updateDisplay() {
-    	dealerArea.removeAll();
-    	playerArea.removeAll();
+        dealerArea.removeAll();
+        playerArea.removeAll();
 
-    	dealerArea.add(drawPile(game.dealerHand));
-    	playerArea.add(drawPile(game.playerHand));
+        dealerArea.add(drawPile(game.dealerHand));
 
-     	revalidate();
-    	repaint();
+        if (game.roundOver == false) {
+            dealerValueLabel.setText("Dealer Value: ?");
+        } else if (game.dealerHand != null) {
+            dealerValueLabel.setText("Dealer Value: " + game.calculateHandValue(game.dealerHand));
+        }
+
+        dealerArea.add(dealerValueLabel);
+
+        playerArea.add(drawPile(game.playerHand));
+
+        if (game.playerHand != null) {
+            playerValueLabel.setText("Your Value: " + game.calculateHandValue(game.playerHand));
+        }
+
+        playerArea.add(playerValueLabel);
+
+        revalidate();
+        repaint();
+    }
+
+    // Precondition: The player has selected a betting amount.
+    // Postcondition: If the bet is valid, a new round starts and the display is updated.
+    public void placeBet(int amount) {
+        if (canBet == true && game.placeBet(amount)) {
+
+            canBet = false;
+
+            game.startNewRound();
+
+            moneyLabel.setText("Chips: " + game.playerMoney);
+            betLabel.setText("Current Bet: " + game.currentBet);
+            resultLabel.setText("Your turn!");
+
+            updateDisplay();
+
+        } else {
+            resultLabel.setText("Invalid bet!");
+        }
+    }
+
+    // Precondition: The current round has ended.
+    // Postcondition: The dealer's card is revealed, the winner is paid, and the game labels are updated.
+    public void finishRound() {
+        String winner = game.determineWinner();
+
+        // Reveal the dealer's hidden card
+        game.dealerHand.get(1).show();
+
+        game.payWinner();
+
+        String status = game.checkGameStatus();
+
+        if (status.equals("")) {
+            resultLabel.setText(winner);
+            canBet = true;
+        } else {
+            resultLabel.setText(status);
+            canBet = false;
+        }
+
+        moneyLabel.setText("Chips: " + game.playerMoney);
+        betLabel.setText("Current Bet: 0");
     }
 
     @Override
